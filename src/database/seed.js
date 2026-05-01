@@ -2,6 +2,7 @@
  * Seed Script
  * Creates sample users, bank accounts, and demonstrates a payment.
  * Run: npm run seed
+ * Also exported as seed() for programmatic use on server cold start.
  */
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
@@ -12,8 +13,6 @@ const Transaction = require('../models/transaction.model');
 const RefreshToken = require('../models/refreshToken.model');
 
 async function seed() {
-  await connectDB();
-
   console.log('\n🌱 Seeding database...');
 
   // Clear existing data
@@ -79,11 +78,19 @@ async function seed() {
   console.log(`   Account 1: ${bobAcc1.id} | Balance: ₹2,000`);
   console.log('\n🔑 Password for both users: Password1');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
-  process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error('❌ Seed failed:', err);
-  process.exit(1);
-});
+module.exports = { seed };
+
+// Allow running directly: node src/database/seed.js
+if (require.main === module) {
+  (async () => {
+    await connectDB();
+    await seed();
+    process.exit(0);
+  })().catch((err) => {
+    console.error('❌ Seed failed:', err);
+    process.exit(1);
+  });
+}
+
